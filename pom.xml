@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-parent</artifactId>
+        <version>4.0.3</version>
+        <relativePath/>
+    </parent>
+
+    <groupId>com.tiendagenerica</groupId>
+    <artifactId>tienda-generica-parent</artifactId>
+    <version>0.0.1-SNAPSHOT</version>
+    <packaging>pom</packaging>
+    <name>tienda-generica-parent</name>
+    <description>Parent multi-modulo para Tienda Generica</description>
+
+    <properties>
+        <java.version>17</java.version>
+    </properties>
+
+    <modules>
+        <module>microservices/domain-kernel</module>
+        <module>microservices/usuarios-service</module>
+        <module>microservices/clientes-service</module>
+        <module>microservices/proveedores-service</module>
+        <module>microservices/productos-service</module>
+        <module>microservices/ventas-service</module>
+        <module>microservices/report-service</module>
+        <module>microservices/gateway-service</module>
+    </modules>
+</project>

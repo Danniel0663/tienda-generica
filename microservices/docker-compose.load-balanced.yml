@@ -1,0 +1,130 @@
+services:
+  gateway-service:
+    environment:
+      SERVICES_USUARIOS_BASE_URLS: http://usuarios-service:8082,http://usuarios-service-2:8082
+      SERVICES_CLIENTES_BASE_URLS: http://clientes-service:8083,http://clientes-service-2:8083
+      SERVICES_PROVEEDORES_BASE_URLS: http://proveedores-service:8084,http://proveedores-service-2:8084
+      SERVICES_PRODUCTOS_BASE_URLS: http://productos-service:8085,http://productos-service-2:8085
+      SERVICES_VENTAS_BASE_URLS: http://ventas-service:8086,http://ventas-service-2:8086
+      SERVICES_REPORTES_BASE_URLS: http://report-service:8087,http://report-service-2:8087
+
+  usuarios-service-2:
+    build:
+      context: ..
+      dockerfile: Dockerfile.service
+      args:
+        MODULE_PATH: microservices/usuarios-service
+        ARTIFACT_NAME: usuarios-service-0.0.1-SNAPSHOT.war
+    restart: unless-stopped
+    environment:
+      SERVER_PORT: 8082
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/tienda_generica?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=America/Bogota
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: root
+      APP_SECURITY_TOKEN_SECRET: change-this-secret-in-production-32-characters
+    expose:
+      - "8082"
+    depends_on:
+      mysql:
+        condition: service_healthy
+
+  clientes-service-2:
+    build:
+      context: ..
+      dockerfile: Dockerfile.service
+      args:
+        MODULE_PATH: microservices/clientes-service
+        ARTIFACT_NAME: clientes-service-0.0.1-SNAPSHOT.war
+    restart: unless-stopped
+    environment:
+      SERVER_PORT: 8083
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/tienda_generica?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=America/Bogota
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: root
+      APP_SECURITY_TOKEN_SECRET: change-this-secret-in-production-32-characters
+    expose:
+      - "8083"
+    depends_on:
+      mysql:
+        condition: service_healthy
+
+  proveedores-service-2:
+    build:
+      context: ..
+      dockerfile: Dockerfile.service
+      args:
+        MODULE_PATH: microservices/proveedores-service
+        ARTIFACT_NAME: proveedores-service-0.0.1-SNAPSHOT.war
+    restart: unless-stopped
+    environment:
+      SERVER_PORT: 8084
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/tienda_generica?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=America/Bogota
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: root
+      APP_SECURITY_TOKEN_SECRET: change-this-secret-in-production-32-characters
+    expose:
+      - "8084"
+    depends_on:
+      mysql:
+        condition: service_healthy
+
+  productos-service-2:
+    build:
+      context: ..
+      dockerfile: Dockerfile.service
+      args:
+        MODULE_PATH: microservices/productos-service
+        ARTIFACT_NAME: productos-service-0.0.1-SNAPSHOT.war
+    restart: unless-stopped
+    environment:
+      SERVER_PORT: 8085
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/tienda_generica?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=America/Bogota
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: root
+      APP_SECURITY_TOKEN_SECRET: change-this-secret-in-production-32-characters
+    expose:
+      - "8085"
+    depends_on:
+      mysql:
+        condition: service_healthy
+
+  ventas-service-2:
+    build:
+      context: ..
+      dockerfile: Dockerfile.service
+      args:
+        MODULE_PATH: microservices/ventas-service
+        ARTIFACT_NAME: ventas-service-0.0.1-SNAPSHOT.war
+    restart: unless-stopped
+    environment:
+      SERVER_PORT: 8086
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/tienda_generica?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=America/Bogota
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: root
+      APP_SECURITY_TOKEN_SECRET: change-this-secret-in-production-32-characters
+    expose:
+      - "8086"
+    depends_on:
+      mysql:
+        condition: service_healthy
+
+  report-service-2:
+    build:
+      context: ..
+      dockerfile: Dockerfile.service
+      args:
+        MODULE_PATH: microservices/report-service
+        ARTIFACT_NAME: report-service-0.0.1-SNAPSHOT.jar
+    restart: unless-stopped
+    environment:
+      SERVER_PORT: 8087
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/tienda_generica?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=America/Bogota
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: root
+      APP_SECURITY_TOKEN_SECRET: change-this-secret-in-production-32-characters
+      APP_CORS_ALLOWED_ORIGINS: http://localhost:8081
+    expose:
+      - "8087"
+    depends_on:
+      mysql:
+        condition: service_healthy

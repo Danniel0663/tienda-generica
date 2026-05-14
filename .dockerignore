@@ -1,0 +1,5 @@
+.git
+*.tar.gz
+.env.oracle
+**/target
+**/.DS_Store

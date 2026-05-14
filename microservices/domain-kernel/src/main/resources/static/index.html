@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Plataforma administrativa de Tienda Generica para operar catalogo, clientes, ventas y reportes.">
+    <title>Tienda Generica Virtual</title>
+    <link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@300;400;500;600;700;800&family=Source+Sans+3:wght@400;500;600;700&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+    <div id="loginScreen" class="login-screen">
+        <div class="login-layout">
+            <section class="login-intro">
+                <p class="login-kicker">Control Empresarial</p>
+                <h1>Tienda Generica Virtual</h1>
+                <p class="subtitle">Opera ventas, clientes, catalogo y reportes desde una unica plataforma con acceso autenticado y flujos consistentes.</p>
+                <ul class="login-list">
+                    <li>Sesion protegida con token firmado</li>
+                    <li>Catalogo y reportes por microservicios</li>
+                    <li>Interfaz operativa responsive para escritorio y movil</li>
+                </ul>
+            </section>
+            <section class="login-box">
+                <div class="login-glow"></div>
+                <h2>Iniciar Sesion</h2>
+                <p class="subtitle">Ingresa tus credenciales para acceder al panel operativo.</p>
+                <form onsubmit="App.login(event)" novalidate>
+                    <label for="loginUser">Usuario</label>
+                    <input type="text" id="loginUser" required autocomplete="username" aria-describedby="loginUserHint">
+                    <p id="loginUserHint" class="field-hint">Ejemplo: admininicial</p>
+
+                    <label for="loginPass">Contrasena</label>
+                    <div class="password-wrap">
+                        <input type="password" id="loginPass" required autocomplete="current-password" aria-describedby="loginPassHint">
+                        <button type="button" class="pass-toggle" onclick="App.togglePassword()">Mostrar</button>
+                    </div>
+                    <p id="loginPassHint" class="field-hint">La contrasena distingue mayusculas y minusculas.</p>
+
+                    <button type="submit" class="btn btn-accent w-full" id="btnLogin">Ingresar</button>
+                </form>
+                <div id="loginError" class="alert alert-error" role="alert" aria-live="assertive" style="display:none"></div>
+                <a href="#" class="login-link" onclick="return false">Acceso solo para usuarios registrados</a>
+            </section>
+        </div>
+    </div>
+
+    <div id="appShell" class="app-shell" style="display:none">
+        <aside class="sidebar">
+            <div class="sidebar-brand">
+                <span class="brand-mark">TG</span>
+                <div>
+                    <strong>Tienda Generica</strong>
+                    <small>Operacion comercial centralizada</small>
+                </div>
+            </div>
+            <nav class="sidebar-nav">
+                <p class="nav-group">Inicio</p>
+                <a class="nav-item active" data-view="dashboard" onclick="App.navigate('dashboard')"><span class="nav-icon">01</span>Resumen</a>
+                <p class="nav-group">Operacion</p>
+                <a class="nav-item" data-view="clientes" onclick="App.navigate('clientes')"><span class="nav-icon">02</span>Clientes</a>
+                <a class="nav-item" data-view="ventas" onclick="App.navigate('ventas')"><span class="nav-icon">03</span>Ventas</a>
+                <p class="nav-group">Catalogo</p>
+                <a class="nav-item" data-view="proveedores" onclick="App.navigate('proveedores')"><span class="nav-icon">04</span>Proveedores</a>
+                <a class="nav-item" data-view="productos" onclick="App.navigate('productos')"><span class="nav-icon">05</span>Productos</a>
+                <p class="nav-group">Administracion</p>
+                <a class="nav-item" data-view="usuarios" onclick="App.navigate('usuarios')"><span class="nav-icon">06</span>Usuarios</a>
+                <a class="nav-item" data-view="reportes" onclick="App.navigate('reportes')"><span class="nav-icon">07</span>Reportes</a>
+            </nav>
+            <div class="sidebar-footer">
+                <div class="user-info">
+                    <span class="user-avatar">TG</span>
+                    <div>
+                        <strong id="sidebarUser">Administrador</strong>
+                        <small id="sidebarEmail">admin@tienda.local</small>
+                    </div>
+                </div>
+                <small class="sidebar-status" id="sidebarSessionStatus">Sesion activa</small>
+                <button class="btn btn-ghost btn-sm w-full" onclick="App.logout()">Cerrar sesion</button>
+            </div>
+        </aside>
+
+        <div id="sidebarBackdrop" class="sidebar-backdrop" onclick="App.toggleSidebar(false)"></div>
+
+        <main class="main-content">
+            <div class="main-toolbar">
+                <div class="toolbar-main">
+                    <button type="button" class="shell-menu" onclick="App.toggleSidebar(true)" aria-label="Abrir menu">Menu</button>
+                    <div>
+                        <p class="toolbar-kicker">Panel Administrativo</p>
+                        <h1 id="pageTitle">Resumen General</h1>
+                        <p id="pageSubtitle">Operacion central y monitoreo comercial</p>
+                    </div>
+                </div>
+                <div class="toolbar-meta">
+                    <span class="toolbar-chip" id="sessionBadge">Sesion protegida</span>
+                    <span class="toolbar-chip toolbar-chip-muted" id="sessionExpiry">Expira --</span>
+                </div>
+            </div>
+            <div id="content"></div>
+        </main>
+    </div>
+
+    <div id="modal" class="modal-overlay" style="display:none" onclick="if(event.target===this) App.closeModal()">
+        <div class="modal-box">
+            <div class="modal-header">
+                <h3 id="modalTitle">Titulo</h3>
+                <button onclick="App.closeModal()" class="modal-close">×</button>
+            </div>
+            <div class="modal-body" id="modalBody"></div>
+        </div>
+    </div>
+
+    <div id="toasts" class="toast-container"></div>
+
+    <template id="tpl-dashboard">
+        <div class="view-header">
+            <div>
+                <h2>Resumen General</h2>
+                <p>Indicadores principales de operacion comercial y accesos rapidos del dia.</p>
+            </div>
+        </div>
+        <div class="quick-actions card">
+            <div>
+                <h3>Acciones Rapidas</h3>
+                <p class="qa-subtitle">Atajos para tareas frecuentes del equipo operativo</p>
+            </div>
+            <div class="qa-buttons">
+                <button class="btn btn-accent" onclick="App.navigate('ventas')">Registrar Venta</button>
+                <button class="btn btn-ghost" onclick="App.navigate('clientes')">Nuevo Cliente</button>
+                <button class="btn btn-ghost" onclick="App.navigate('productos'); setTimeout(() => Views.productos.openCsv(), 120)">Cargar CSV</button>
+            </div>
+        </div>
+        <div class="stats-grid" id="dashStats"></div>
+        <div class="card section-spaced">
+            <h3>Ultimas Ventas</h3>
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Cliente</th>
+                            <th>Vendedor</th>
+                            <th>Total + IVA</th>
+                            <th>Fecha</th>
+                        </tr>
+                    </thead>
+                    <tbody id="dashVentas"></tbody>
+                </table>
+            </div>
+        </div>
+    </template>
+
+    <template id="tpl-proveedores">
+        <div class="view-header">
+            <div>
+                <h2>Gestion de Proveedores</h2>
+                <p>Alta, edicion y control de proveedores habilitados para el catalogo.</p>
+            </div>
+            <div class="view-actions">
+                <input type="text" id="searchProv" placeholder="Buscar por NIT o nombre..." class="search-input" oninput="Views.proveedores.search()">
+                <button class="btn btn-accent" onclick="Views.proveedores.openForm()">Nuevo Proveedor</button>
+            </div>
+        </div>
+        <div class="card">
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>NIT</th>
+                            <th>Nombre</th>
+                            <th>Direccion</th>
+                            <th>Telefono</th>
+                            <th>Ciudad</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tbProv"></tbody>
+                </table>
+            </div>
+        </div>
+    </template>
+
+    <template id="tpl-productos">
+        <div class="view-header">
+            <div>
+                <h2>Gestion de Productos</h2>
+                <p>Catalogo comercial, precios y carga controlada por CSV sin perder informacion existente.</p>
+            </div>
+            <div class="view-actions">
+                <input type="text" id="searchProd" placeholder="Buscar por codigo o nombre..." class="search-input" oninput="Views.productos.search()">
+                <button class="btn btn-ghost" onclick="Views.productos.openCsv()">Cargar CSV</button>
+                <button class="btn btn-accent" onclick="Views.productos.openForm()">Nuevo Producto</button>
+            </div>
+        </div>
+        <div class="card">
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Codigo</th>
+                            <th>Nombre</th>
+                            <th>Proveedor</th>
+                            <th>P. Compra</th>
+                            <th>IVA %</th>
+                            <th>P. Venta</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tbProd"></tbody>
+                </table>
+            </div>
+        </div>
+    </template>
+
+    <template id="tpl-clientes">
+        <div class="view-header">
+            <div>
+                <h2>Gestion de Clientes</h2>
+                <p>Base comercial para ventas, facturacion y seguimiento relacional.</p>
+            </div>
+            <div class="view-actions">
+                <input type="text" id="searchCli" placeholder="Buscar por cedula o nombre..." class="search-input" oninput="Views.clientes.search()">
+                <button class="btn btn-accent" onclick="Views.clientes.openForm()">Nuevo Cliente</button>
+            </div>
+        </div>
+        <div class="card">
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Cedula</th>
+                            <th>Nombre</th>
+                            <th>Direccion</th>
+                            <th>Telefono</th>
+                            <th>Correo</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tbCli"></tbody>
+                </table>
+            </div>
+        </div>
+    </template>
+
+    <template id="tpl-usuarios">
+        <div class="view-header">
+            <div>
+                <h2>Gestion de Usuarios</h2>
+                <p>Control de accesos con activacion, desactivacion y validaciones de consistencia.</p>
+            </div>
+            <div class="view-actions">
+                <input type="text" id="searchUsr" placeholder="Buscar por cedula, usuario o correo..." class="search-input" oninput="Views.usuarios.search()">
+                <button class="btn btn-accent" onclick="Views.usuarios.openForm()">Nuevo Usuario</button>
+            </div>
+        </div>
+        <div class="card">
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Cedula</th>
+                            <th>Nombre</th>
+                            <th>Correo</th>
+                            <th>Usuario</th>
+                            <th>Estado</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tbUsr"></tbody>
+                </table>
+            </div>
+        </div>
+    </template>
+
+    <template id="tpl-ventas">
+        <div class="view-header">
+            <div>
+                <h2>Registro de Ventas</h2>
+                <p>Liquida operaciones con maximo 3 productos distintos y validacion de IVA en tiempo real.</p>
+            </div>
+        </div>
+        <div class="wizard-steps" id="ventaSteps">
+            <div class="wizard-step active" data-step="1"><span>1</span>Cliente</div>
+            <div class="wizard-step" data-step="2"><span>2</span>Productos</div>
+            <div class="wizard-step" data-step="3"><span>3</span>Resumen</div>
+            <div class="wizard-step" data-step="4"><span>4</span>Confirmar</div>
+        </div>
+        <div class="ventas-grid">
+            <div class="card">
+                <h3>Datos de la Venta</h3>
+                <form id="ventaForm" onsubmit="Views.ventas.crear(event)">
+                    <div class="wizard-panel active">
+                        <label for="ventaCliente">Cliente</label>
+                        <select id="ventaCliente" required class="form-control">
+                            <option value="">Seleccionar cliente...</option>
+                        </select>
+                        <label for="ventaVendedor">Vendedor</label>
+                        <input type="text" id="ventaVendedor" class="form-control" disabled>
+                        <input type="hidden" id="ventaVendedorId">
+                    </div>
+
+                    <div class="wizard-panel">
+                        <div class="items-header">
+                            <label>Productos</label>
+                            <button type="button" class="btn btn-sm btn-ghost" onclick="Views.ventas.addItem()">Agregar Item</button>
+                        </div>
+                        <div id="ventaItems"></div>
+                    </div>
+
+                    <div class="wizard-panel">
+                        <div id="ventaSummaryItems" class="summary-list"></div>
+                        <div class="venta-totals">
+                            <div class="total-row"><span>Subtotal</span><span id="vtSubtotal">$0.00</span></div>
+                            <div class="total-row"><span>IVA</span><span id="vtIva">$0.00</span></div>
+                            <div class="total-row total-final"><span>Total</span><span id="vtTotal">$0.00</span></div>
+                        </div>
+                    </div>
+
+                    <div class="wizard-panel">
+                        <div class="confirm-panel">
+                            <p class="confirm-text" id="ventaConfirmCopy">Verifica los valores y confirma para registrar la venta.</p>
+                            <button type="submit" class="btn btn-accent w-full">Registrar Venta</button>
+                        </div>
+                    </div>
+
+                    <div class="wizard-nav">
+                        <button type="button" class="btn btn-ghost" onclick="Views.ventas.prevStep()">Anterior</button>
+                        <button type="button" class="btn btn-accent" onclick="Views.ventas.nextStep()">Siguiente</button>
+                    </div>
+                </form>
+            </div>
+
+            <div class="card">
+                <h3>Ventas Recientes</h3>
+                <div class="table-wrap">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>Cliente</th>
+                                <th>Total</th>
+                                <th>IVA</th>
+                                <th>Total + IVA</th>
+                                <th>Fecha</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tbVentas"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </template>
+
+    <template id="tpl-reportes">
+        <div class="view-header">
+            <div>
+                <h2>Consultas y Reportes</h2>
+                <p>Microservicio especializado en consultas administrativas y consolidado de ventas por cliente.</p>
+            </div>
+        </div>
+        <div class="tabs">
+            <button class="tab active" onclick="Views.reportes.showTab('repUsuarios', this)">Usuarios</button>
+            <button class="tab" onclick="Views.reportes.showTab('repClientes', this)">Clientes</button>
+            <button class="tab" onclick="Views.reportes.showTab('repVentas', this)">Ventas / Cliente</button>
+        </div>
+
+        <div id="repUsuarios" class="tab-panel active">
+            <div class="stats-grid" id="repUsrStats"></div>
+            <div class="card">
+                <div class="table-wrap">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Cedula</th>
+                                <th>Nombre</th>
+                                <th>Correo</th>
+                                <th>Usuario</th>
+                                <th>Estado</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tbRepUsr"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div id="repClientes" class="tab-panel">
+            <div class="stats-grid" id="repCliStats"></div>
+            <div class="card">
+                <div class="table-wrap">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Cedula</th>
+                                <th>Nombre</th>
+                                <th>Direccion</th>
+                                <th>Telefono</th>
+                                <th>Correo</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tbRepCli"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div id="repVentas" class="tab-panel">
+            <div class="card">
+                <div class="table-wrap">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Cedula</th>
+                                <th>Nombre Cliente</th>
+                                <th>Total Compras</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tbRepVentas"></tbody>
+                    </table>
+                </div>
+                <div class="total-bar" id="repTotalBar" style="display:none">
+                    <span>Total Consolidado</span>
+                    <strong id="repTotalConsolidado">$0.00</strong>
+                </div>
+            </div>
+        </div>
+    </template>
+
+    <script src="app.js"></script>
+</body>
+
+</html>
