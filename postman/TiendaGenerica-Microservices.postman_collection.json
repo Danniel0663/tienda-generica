@@ -1,0 +1,263 @@
+{
+  "info": {
+    "_postman_id": "4fb233e0-63bb-4fbe-a302-0ef2dbdd6e62",
+    "name": "TiendaGenerica Microservices",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "Login",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const json = pm.response.json();",
+                  "if (json.token) {",
+                  "  pm.environment.set('token', json.token);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"usuario\": \"{{login_user}}\",\n  \"contrasena\": \"{{login_password}}\"\n}"
+            },
+            "url": "{{gateway_url}}/api/auth/login"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Usuarios",
+      "item": [
+        {
+          "name": "Listar Usuarios",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "url": "{{gateway_url}}/api/usuarios"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Clientes",
+      "item": [
+        {
+          "name": "Crear Cliente",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"cedula\": {{cliente_cedula}},\n  \"nombreCompleto\": \"Cliente Postman\",\n  \"direccion\": \"Calle 10 # 20-30\",\n  \"telefono\": \"3001234567\",\n  \"correoElectronico\": \"cliente.postman@example.com\"\n}"
+            },
+            "url": "{{gateway_url}}/api/clientes"
+          }
+        },
+        {
+          "name": "Listar Clientes",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "url": "{{gateway_url}}/api/clientes"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Proveedores",
+      "item": [
+        {
+          "name": "Crear Proveedor",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nit\": {{proveedor_nit}},\n  \"nombreProveedor\": \"Proveedor Postman\",\n  \"direccion\": \"Carrera 15 # 30-40\",\n  \"telefono\": \"6017654321\",\n  \"ciudad\": \"Bogota\"\n}"
+            },
+            "url": "{{gateway_url}}/api/proveedores"
+          }
+        },
+        {
+          "name": "Listar Proveedores",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "url": "{{gateway_url}}/api/proveedores"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Productos",
+      "item": [
+        {
+          "name": "Crear Producto",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"codigoProducto\": {{producto_codigo}},\n  \"nombreProducto\": \"Teclado Postman\",\n  \"nitProveedor\": {{proveedor_nit}},\n  \"precioCompra\": 50000,\n  \"ivaCompra\": 19,\n  \"precioVenta\": 70000\n}"
+            },
+            "url": "{{gateway_url}}/api/productos"
+          }
+        },
+        {
+          "name": "Listar Productos",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "url": "{{gateway_url}}/api/productos"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Ventas",
+      "item": [
+        {
+          "name": "Crear Venta",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"cedulaCliente\": {{cliente_cedula}},\n  \"cedulaUsuario\": {{usuario_cedula}},\n  \"items\": [\n    {\n      \"codigoProducto\": {{producto_codigo}},\n      \"cantidad\": 1\n    }\n  ]\n}"
+            },
+            "url": "{{gateway_url}}/api/ventas"
+          }
+        },
+        {
+          "name": "Listar Ventas",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "url": "{{gateway_url}}/api/ventas"
+          }
+        }
+      ]
+    }
+  ]
+}
