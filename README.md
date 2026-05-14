@@ -58,6 +58,21 @@ cp .env.oracle.example .env.oracle
 ./scripts/oracle/deploy-compose.sh
 ```
 
+## Despliegue en Render
+
+El repo también quedó preparado con [render.yaml](/Users/dannielparra/Downloads/TiendaGenerica/render.yaml) para desplegar:
+
+- `tienda-generica-frontend` como servicio web público
+- `gateway`, microservicios y `mysql` como servicios privados
+- el frontend consumiendo la API por proxy interno, sin exponer el backend al público
+
+Botón directo:
+
+[![Deploy to Render](https://render.com/images/deploy-to-render-button.svg)](https://render.com/deploy?repo=https://github.com/Danniel0663/tienda-generica)
+
+Nota importante:
+Render indica que `free` no está disponible para private services, background workers o cron jobs, por lo que esta arquitectura requiere al menos planes `starter` para los servicios privados.
+
 ## Verificación rápida del balanceo
 
 Balanceador del frontend:
