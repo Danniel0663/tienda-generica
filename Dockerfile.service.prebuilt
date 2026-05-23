@@ -1,0 +1,11 @@
+FROM eclipse-temurin:17-jre
+
+ARG MODULE_PATH
+ARG ARTIFACT_NAME
+
+WORKDIR /app
+
+COPY ${MODULE_PATH}/target/${ARTIFACT_NAME} /app/app.war
+COPY scripts /app/scripts
+
+ENTRYPOINT ["java", "-jar", "/app/app.war"]

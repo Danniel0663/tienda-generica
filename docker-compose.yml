@@ -38,6 +38,8 @@ x-gateway-service: &gateway-service
 x-frontend-service: &frontend-service
   image: tienda-generica-frontend:local
   restart: unless-stopped
+  environment:
+    GATEWAY_HOSTPORT: backend-load-balancer
   expose:
     - "80"
 
