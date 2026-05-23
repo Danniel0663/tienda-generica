@@ -73,6 +73,18 @@ Botón directo:
 Nota importante:
 Render indica que `free` no está disponible para private services, background workers o cron jobs, por lo que esta arquitectura requiere al menos planes `starter` para los servicios privados.
 
+## Kubernetes en GCP
+
+También quedó preparada una base de Kubernetes en [infra/k8s](/Users/dannielparra/Downloads/TiendaGenerica/infra/k8s) con:
+
+- `Namespace`
+- `ConfigMap` y `Secret`
+- `StatefulSet` para MySQL
+- `Deployment` + `Service` para `frontend`, `gateway` y microservicios
+- `Ingress` para enrutar `/` y `/api`
+
+La guía completa está en [GCP_KUBERNETES.md](/Users/dannielparra/Downloads/TiendaGenerica/docs/deployment/GCP_KUBERNETES.md) y los scripts de apoyo están en [scripts/gcp](/Users/dannielparra/Downloads/TiendaGenerica/scripts/gcp).
+
 ## Verificación rápida del balanceo
 
 Balanceador del frontend:

@@ -1,0 +1,452 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: usuarios-service
+spec:
+  selector:
+    app.kubernetes.io/component: usuarios-service
+  ports:
+    - name: http
+      port: 8082
+      targetPort: 8082
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: usuarios-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/component: usuarios-service
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/component: usuarios-service
+    spec:
+      containers:
+        - name: usuarios-service
+          image: tienda-generica/usuarios-service:k8s
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8082
+          envFrom:
+            - configMapRef:
+                name: tienda-generica-config
+            - secretRef:
+                name: tienda-generica-secrets
+          env:
+            - name: SERVER_PORT
+              value: "8082"
+          readinessProbe:
+            tcpSocket:
+              port: 8082
+            initialDelaySeconds: 20
+            periodSeconds: 10
+          livenessProbe:
+            tcpSocket:
+              port: 8082
+            initialDelaySeconds: 40
+            periodSeconds: 20
+          resources:
+            requests:
+              cpu: 150m
+              memory: 384Mi
+            limits:
+              memory: 768Mi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: clientes-service
+spec:
+  selector:
+    app.kubernetes.io/component: clientes-service
+  ports:
+    - name: http
+      port: 8083
+      targetPort: 8083
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: clientes-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/component: clientes-service
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/component: clientes-service
+    spec:
+      containers:
+        - name: clientes-service
+          image: tienda-generica/clientes-service:k8s
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8083
+          envFrom:
+            - configMapRef:
+                name: tienda-generica-config
+            - secretRef:
+                name: tienda-generica-secrets
+          env:
+            - name: SERVER_PORT
+              value: "8083"
+          readinessProbe:
+            tcpSocket:
+              port: 8083
+            initialDelaySeconds: 20
+            periodSeconds: 10
+          livenessProbe:
+            tcpSocket:
+              port: 8083
+            initialDelaySeconds: 40
+            periodSeconds: 20
+          resources:
+            requests:
+              cpu: 150m
+              memory: 384Mi
+            limits:
+              memory: 768Mi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: proveedores-service
+spec:
+  selector:
+    app.kubernetes.io/component: proveedores-service
+  ports:
+    - name: http
+      port: 8084
+      targetPort: 8084
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: proveedores-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/component: proveedores-service
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/component: proveedores-service
+    spec:
+      containers:
+        - name: proveedores-service
+          image: tienda-generica/proveedores-service:k8s
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8084
+          envFrom:
+            - configMapRef:
+                name: tienda-generica-config
+            - secretRef:
+                name: tienda-generica-secrets
+          env:
+            - name: SERVER_PORT
+              value: "8084"
+          readinessProbe:
+            tcpSocket:
+              port: 8084
+            initialDelaySeconds: 20
+            periodSeconds: 10
+          livenessProbe:
+            tcpSocket:
+              port: 8084
+            initialDelaySeconds: 40
+            periodSeconds: 20
+          resources:
+            requests:
+              cpu: 150m
+              memory: 384Mi
+            limits:
+              memory: 768Mi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: productos-service
+spec:
+  selector:
+    app.kubernetes.io/component: productos-service
+  ports:
+    - name: http
+      port: 8085
+      targetPort: 8085
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: productos-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/component: productos-service
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/component: productos-service
+    spec:
+      containers:
+        - name: productos-service
+          image: tienda-generica/productos-service:k8s
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8085
+          envFrom:
+            - configMapRef:
+                name: tienda-generica-config
+            - secretRef:
+                name: tienda-generica-secrets
+          env:
+            - name: SERVER_PORT
+              value: "8085"
+          readinessProbe:
+            tcpSocket:
+              port: 8085
+            initialDelaySeconds: 20
+            periodSeconds: 10
+          livenessProbe:
+            tcpSocket:
+              port: 8085
+            initialDelaySeconds: 40
+            periodSeconds: 20
+          resources:
+            requests:
+              cpu: 150m
+              memory: 384Mi
+            limits:
+              memory: 768Mi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: ventas-service
+spec:
+  selector:
+    app.kubernetes.io/component: ventas-service
+  ports:
+    - name: http
+      port: 8086
+      targetPort: 8086
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ventas-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/component: ventas-service
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/component: ventas-service
+    spec:
+      containers:
+        - name: ventas-service
+          image: tienda-generica/ventas-service:k8s
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8086
+          envFrom:
+            - configMapRef:
+                name: tienda-generica-config
+            - secretRef:
+                name: tienda-generica-secrets
+          env:
+            - name: SERVER_PORT
+              value: "8086"
+          readinessProbe:
+            tcpSocket:
+              port: 8086
+            initialDelaySeconds: 20
+            periodSeconds: 10
+          livenessProbe:
+            tcpSocket:
+              port: 8086
+            initialDelaySeconds: 40
+            periodSeconds: 20
+          resources:
+            requests:
+              cpu: 150m
+              memory: 384Mi
+            limits:
+              memory: 768Mi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: report-service
+spec:
+  selector:
+    app.kubernetes.io/component: report-service
+  ports:
+    - name: http
+      port: 8087
+      targetPort: 8087
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: report-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/component: report-service
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/component: report-service
+    spec:
+      containers:
+        - name: report-service
+          image: tienda-generica/report-service:k8s
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8087
+          envFrom:
+            - configMapRef:
+                name: tienda-generica-config
+            - secretRef:
+                name: tienda-generica-secrets
+          env:
+            - name: SERVER_PORT
+              value: "8087"
+          readinessProbe:
+            tcpSocket:
+              port: 8087
+            initialDelaySeconds: 20
+            periodSeconds: 10
+          livenessProbe:
+            tcpSocket:
+              port: 8087
+            initialDelaySeconds: 40
+            periodSeconds: 20
+          resources:
+            requests:
+              cpu: 150m
+              memory: 384Mi
+            limits:
+              memory: 768Mi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: gateway-service
+spec:
+  selector:
+    app.kubernetes.io/component: gateway-service
+  ports:
+    - name: http
+      port: 8081
+      targetPort: 8081
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: gateway-service
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app.kubernetes.io/component: gateway-service
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/component: gateway-service
+    spec:
+      containers:
+        - name: gateway-service
+          image: tienda-generica/gateway-service:k8s
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8081
+          envFrom:
+            - configMapRef:
+                name: tienda-generica-config
+            - secretRef:
+                name: tienda-generica-secrets
+          env:
+            - name: SERVER_PORT
+              value: "8081"
+          readinessProbe:
+            tcpSocket:
+              port: 8081
+            initialDelaySeconds: 20
+            periodSeconds: 10
+          livenessProbe:
+            tcpSocket:
+              port: 8081
+            initialDelaySeconds: 40
+            periodSeconds: 20
+          resources:
+            requests:
+              cpu: 200m
+              memory: 384Mi
+            limits:
+              memory: 768Mi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: frontend-service
+spec:
+  selector:
+    app.kubernetes.io/component: frontend
+  ports:
+    - name: http
+      port: 80
+      targetPort: 80
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: frontend
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app.kubernetes.io/component: frontend
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/component: frontend
+    spec:
+      containers:
+        - name: frontend
+          image: tienda-generica/frontend:k8s
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 80
+          envFrom:
+            - configMapRef:
+                name: tienda-generica-config
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 80
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 80
+            initialDelaySeconds: 15
+            periodSeconds: 20
+          resources:
+            requests:
+              cpu: 50m
+              memory: 64Mi
+            limits:
+              memory: 128Mi
