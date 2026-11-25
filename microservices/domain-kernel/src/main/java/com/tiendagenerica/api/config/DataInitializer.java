@@ -7,6 +7,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
 @Component
+@org.springframework.boot.autoconfigure.condition.ConditionalOnProperty(name = "app.bootstrap-admin", matchIfMissing = true, havingValue = "true")
 public class DataInitializer implements CommandLineRunner {
 
     private final UsuarioRepository usuarioRepository;

@@ -1,0 +1,18 @@
+services:
+  - type: web
+    name: mostrador-portafolio
+    runtime: docker
+    plan: free
+    dockerfilePath: ./portfolio/Dockerfile
+    healthCheckPath: /actuator/health/readiness
+    envVars:
+      - key: APP_SECURITY_TOKEN_SECRET
+        generateValue: true
+      - key: SPRING_DATASOURCE_URL
+        sync: false
+      - key: SPRING_DATASOURCE_USERNAME
+        sync: false
+      - key: SPRING_DATASOURCE_PASSWORD
+        sync: false
+      - key: SPRING_PROFILES_ACTIVE
+        value: portfolio,postgres

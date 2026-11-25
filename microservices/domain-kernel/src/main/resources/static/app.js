@@ -694,10 +694,6 @@ Views.ventas = {
             return;
         }
 
-        if (itemsContainer.querySelectorAll('.venta-item').length >= 3) {
-            App.toast('Solo se permiten 3 productos distintos por venta.', 'error');
-            return;
-        }
 
         const options = this.productos.map(producto =>
             `<option value="${producto.codigoProducto}" data-price="${producto.precioVenta}" data-iva="${producto.ivaCompra}">
@@ -751,9 +747,6 @@ Views.ventas = {
             return { valid: false, message: 'Debes agregar al menos un producto.' };
         }
 
-        if (items.length > 3) {
-            return { valid: false, message: 'Solo se permiten hasta 3 productos por venta.' };
-        }
 
         return { valid: true, items };
     },
