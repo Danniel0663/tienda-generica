@@ -14,5 +14,5 @@ services:
         sync: false
       - key: SPRING_DATASOURCE_PASSWORD
         sync: false
-      - key: AIVEN_CA_PEM
-        sync: false
+      - key: SPRING_PROFILES_ACTIVE
+        value: portfolio,postgres
