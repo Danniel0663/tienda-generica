@@ -18,7 +18,7 @@ RUN mvn -B -ntp -Pportfolio -pl portfolio -am package
 
 FROM eclipse-temurin:17-jre
 WORKDIR /app
-COPY --from=build /src/portfolio/target/portfolio-*.jar /app/mostrador.jar
+COPY --from=build /src/portfolio/target/mostrador-portfolio.jar /app/mostrador.jar
 ENV SPRING_PROFILES_ACTIVE=portfolio
 COPY portfolio/start.sh /app/start.sh
 USER 10001

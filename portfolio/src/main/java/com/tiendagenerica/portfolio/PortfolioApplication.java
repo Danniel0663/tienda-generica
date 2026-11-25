@@ -19,6 +19,7 @@ public class PortfolioApplication {
         SpringApplication.run(PortfolioApplication.class, args);
     }
 
+    @org.springframework.context.annotation.Profile("!postgres")
     @Bean
     ApplicationRunner seedDemo(DataSource dataSource) {
         return args -> {

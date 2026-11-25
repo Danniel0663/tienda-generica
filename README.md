@@ -187,3 +187,5 @@ jdbc:mysql://HOST:PUERTO/defaultdb?sslMode=VERIFY_IDENTITY&connectionTimeZone=Am
 ```
 
 El primer arranque crea las tablas y los datos de muestra. La ruta de disponibilidad es `/actuator/health/readiness`. Todas las cuentas de demostración comparten los datos del entorno.
+
+Para desplegar con PostgreSQL (Neon), usa el Blueprint de portafolio con los perfiles portfolio,postgres. Usa una base vacía y una URL JDBC PostgreSQL con sslmode=verify-full. Las migraciones crean el esquema y los datos ficticios únicamente en la base de la demo. El perfil MySQL sigue disponible para la ejecución local.
