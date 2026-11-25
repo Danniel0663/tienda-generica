@@ -6,6 +6,7 @@ COPY package*.json ./
 RUN if [ -f package-lock.json ]; then npm ci; else npm install; fi
 
 COPY . .
+ARG VITE_PORTFOLIO_DEMO=false
 RUN npm run build
 
 FROM nginx:1.27-alpine

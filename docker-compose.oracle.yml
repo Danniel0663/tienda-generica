@@ -1,5 +1,11 @@
 services:
+  frontend-1:
+    build:
+      args:
+        VITE_PORTFOLIO_DEMO: "true"
   mysql:
+    volumes:
+      - ./scripts/demo-portafolio.sql:/docker-entrypoint-initdb.d/02-demo.sql:ro
     ports:
       - "${MYSQL_PUBLIC_BIND:-127.0.0.1}:${MYSQL_PUBLIC_PORT:-3306}:3306"
 
