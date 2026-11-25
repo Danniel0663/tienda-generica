@@ -38,7 +38,7 @@ public class SecurityConfig {
                 .exceptionHandling(exceptions -> exceptions.authenticationEntryPoint(authenticationEntryPoint))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(HttpMethod.GET, "/", "/index.html").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/app.js", "/styles.css").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/app.js", "/styles.css", "/assets/**").permitAll()
                         .requestMatchers("/favicon.ico", "/error").permitAll()
                         .requestMatchers("/api/auth/login").permitAll()
                         .requestMatchers("/actuator/health/**", "/actuator/info").permitAll()

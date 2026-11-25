@@ -1,3 +1,6 @@
+import ProductPicker from './ProductPicker';
+import WeeklySales from './WeeklySales';
+const STORE_NAME = import.meta.env.VITE_STORE_NAME?.trim() || 'Mostrador';
 import {
   Fragment,
   startTransition,
@@ -41,7 +44,7 @@ const NAV_ITEMS = [
 const VIEW_TITLES = {
   dashboard: {
     title: 'Resumen operativo',
-    subtitle: 'KPIs, trazabilidad del balanceo y atajos para el equipo comercial.'
+    subtitle: 'Consulta tus ventas y la actividad de tu tienda.'
   },
   clientes: {
     title: 'Gestión de clientes',
@@ -49,7 +52,7 @@ const VIEW_TITLES = {
   },
   ventas: {
     title: 'Registro de ventas',
-    subtitle: 'Construye ventas con hasta tres productos y liquidación automática.'
+    subtitle: 'Añade productos y cantidades para calcular el total con IVA.'
   },
   proveedores: {
     title: 'Gestión de proveedores',
@@ -67,11 +70,6 @@ const VIEW_TITLES = {
     title: 'Reportes ejecutivos',
     subtitle: 'Consulta cortes rápidos sobre usuarios, clientes y ventas por cliente.'
   }
-};
-
-const INITIAL_SALE_ITEM = {
-  codigoProducto: '',
-  cantidad: '1'
 };
 
 function ToastViewport({ toasts, onDismiss }) {
@@ -372,7 +370,7 @@ function CrudSection({
       setEditor(null);
       onToast(
         `${resourceLabel} ${isEditing ? 'actualizado' : 'creado'}`,
-        'Los cambios ya están sincronizados con el backend.',
+        'Se guardaron los cambios.',
         'success'
       );
       reload();
@@ -494,7 +492,7 @@ function CrudSection({
             ? `Editar ${resourceLabel}`
             : `Nuevo ${resourceLabel}`
         }
-        subtitle="Completa los campos requeridos y sincroniza el cambio con el microservicio."
+        subtitle="Completa los campos y guarda los cambios."
         onClose={() => setEditor(null)}
       >
         {editor ? (
@@ -538,8 +536,7 @@ function DashboardView({
   onTrace,
   onUnauthorized,
   onToast,
-  onNavigate,
-  trace
+  onNavigate
 }) {
   const [snapshot, setSnapshot] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -648,13 +645,8 @@ function DashboardView({
     <div className="content-stack">
       <section className="hero-grid">
         <article className="hero-card">
-          <p className="eyebrow">Arquitectura objetivo</p>
-          <h2>React + Nginx + Docker en una sola entrega</h2>
-          <p>
-            El panel consume la API a través del balanceador frontal, que a su vez
-            enruta las solicitudes al balanceador del backend y luego a dos instancias
-            del gateway.
-          </p>
+          <h2>Punto de venta</h2>
+          <p>Registra una compra o consulta el precio de un producto.</p>
           <div className="hero-actions">
             <button
               type="button"
@@ -680,51 +672,18 @@ function DashboardView({
           </div>
         </article>
 
-        <article className="panel trace-panel">
-          <div className="panel-head compact">
-            <div>
-              <p className="eyebrow">Trazabilidad</p>
-              <h3>Balanceo en tiempo real</h3>
-            </div>
-          </div>
-          <div className="trace-grid">
-            <div>
-              <span>Frontend LB</span>
-              <strong>{trace.frontendLoadBalancer || 'Vite / local'}</strong>
-            </div>
-            <div>
-              <span>Frontend upstream</span>
-              <strong>{trace.frontendUpstream || '--'}</strong>
-            </div>
-            <div>
-              <span>Backend LB</span>
-              <strong>{trace.backendLoadBalancer || '--'}</strong>
-            </div>
-            <div>
-              <span>Gateway upstream</span>
-              <strong>{trace.backendUpstream || '--'}</strong>
-            </div>
-            <div>
-              <span>Microservicio</span>
-              <strong>{trace.upstreamService || '--'}</strong>
-            </div>
-            <div>
-              <span>Instancia de negocio</span>
-              <strong>{trace.upstreamInstance || '--'}</strong>
-            </div>
-          </div>
-        </article>
+        {snapshot && !error && !loading && <WeeklySales sales={snapshot.ventas} />}
       </section>
 
       <section className="panel">
         <div className="panel-head compact">
           <div>
             <p className="eyebrow">Indicadores</p>
-            <h3>Lectura rápida del sistema</h3>
+            <h3>Tu tienda en cifras</h3>
           </div>
         </div>
         {loading ? (
-          <div className="loading-state">Construyendo snapshot del tablero...</div>
+          <div className="loading-state">Cargando indicadores...</div>
         ) : error ? (
           <EmptyState title="Error de tablero" description={error} />
         ) : (
@@ -845,7 +804,7 @@ function SalesView({
   const [error, setError] = useState('');
   const [form, setForm] = useState({
     cedulaCliente: '',
-    items: [{ ...INITIAL_SALE_ITEM }]
+    items: []
   });
   const [receipt, setReceipt] = useState(null);
   const [submitting, setSubmitting] = useState(false);
@@ -939,32 +898,23 @@ function SalesView({
     }));
   }
 
-  function addLine() {
-    if (form.items.length >= 3) {
-      onToast(
-        'Límite de productos alcanzado',
-        'Solo se permiten tres productos distintos por venta.',
-        'warning'
-      );
-      return;
-    }
-
-    setForm((current) => ({
-      ...current,
-      items: [...current.items, { ...INITIAL_SALE_ITEM }]
-    }));
+  function addProduct(code) {
+    setForm(current => {
+      const exists = current.items.some(line => line.codigoProducto === code);
+      const items = exists
+        ? current.items.map(line => line.codigoProducto === code
+            ? { ...line, cantidad: String(Number(line.cantidad) + 1) }
+            : line)
+        : [...current.items, { codigoProducto: code, cantidad: '1' }];
+      return { ...current, items };
+    });
   }
 
   function removeLine(index) {
-    setForm((current) => ({
-      ...current,
-      items:
-        current.items.length === 1
-          ? [{ ...INITIAL_SALE_ITEM }]
-          : current.items.filter((_, lineIndex) => lineIndex !== index)
+    setForm(current => ({
+      ...current, items: current.items.filter((_, lineIndex) => lineIndex !== index)
     }));
   }
-
   function validateSale() {
     if (!form.cedulaCliente) {
       return 'Selecciona un cliente para registrar la venta.';
@@ -1024,7 +974,7 @@ function SalesView({
       setReceipt(data);
       setForm({
         cedulaCliente: '',
-        items: [{ ...INITIAL_SALE_ITEM }]
+        items: []
       });
       setRefreshTick((current) => current + 1);
       onToast(
@@ -1053,9 +1003,9 @@ function SalesView({
           <div className="panel-head">
             <div>
               <p className="eyebrow">Flujo comercial</p>
-              <h2>Construir venta</h2>
+              <h2>Nueva venta</h2>
               <p>
-                Usa un solo formulario para cliente, productos y confirmación final.
+                Selecciona el cliente y agrega los productos a su compra.
               </p>
             </div>
             <button
@@ -1101,42 +1051,12 @@ function SalesView({
               </div>
 
               <div className="sales-lines">
-                <div className="sales-lines-head">
-                  <div>
-                    <p className="eyebrow">Detalle</p>
-                    <h3>Productos de la venta</h3>
-                  </div>
-                  <button
-                    type="button"
-                    className="button ghost"
-                    onClick={addLine}
-                  >
-                    Agregar producto
-                  </button>
-                </div>
-
-                {form.items.map((line, index) => (
-                  <div key={`${index}-${line.codigoProducto}`} className="line-card">
-                    <label className="form-field">
-                      <span className="field-label">Producto</span>
-                      <select
-                        value={line.codigoProducto}
-                        onChange={(event) =>
-                          updateLine(index, 'codigoProducto', event.target.value)
-                        }
-                      >
-                        <option value="">Seleccionar...</option>
-                        {catalog.productos.map((producto) => (
-                          <option
-                            key={producto.codigoProducto}
-                            value={producto.codigoProducto}
-                          >
-                            {producto.nombreProducto} · {formatCurrency(producto.precioVenta)}
-                          </option>
-                        ))}
-                      </select>
-                    </label>
-
+                <ProductPicker products={catalog.productos} onAdd={addProduct} />
+                <h3>Carrito</h3>
+                {!form.items.length && <p>Selecciona un producto para empezar la venta.</p>}
+                {detailedItems.map(({ item: line, product }, index) => (
+                  <div key={line.codigoProducto} className="line-card">
+                    <strong>{product?.nombreProducto || line.codigoProducto}</strong>
                     <label className="form-field narrow">
                       <span className="field-label">Cantidad</span>
                       <input
@@ -1163,7 +1083,7 @@ function SalesView({
 
               <div className="form-footer">
                 <button type="submit" className="button primary" disabled={submitting}>
-                  {submitting ? 'Registrando...' : 'Registrar venta'}
+                  {submitting ? 'Registrando...' : 'Registrar venta · ' + formatCurrency(totals.subtotal + totals.iva)}
                 </button>
               </div>
             </form>
@@ -1174,7 +1094,7 @@ function SalesView({
           <div className="panel-head compact">
             <div>
               <p className="eyebrow">Resumen</p>
-              <h3>Liquidación inmediata</h3>
+              <h3>Total de la venta</h3>
             </div>
           </div>
 
@@ -1372,10 +1292,9 @@ function ReportsView({ token, onTrace, onUnauthorized }) {
       <div className="panel-head">
         <div>
           <p className="eyebrow">Analítica</p>
-          <h2>Consultas rápidas del ecosistema</h2>
+          <h2>Informes de la tienda</h2>
           <p>
-            La información llega desde el microservicio de reportes a través de la
-            cadena balanceada completa.
+            Consulta el directorio de clientes, el equipo y los importes vendidos por cliente.
           </p>
         </div>
         <button
@@ -1412,7 +1331,7 @@ function ReportsView({ token, onTrace, onUnauthorized }) {
       </div>
 
       {loading ? (
-        <div className="loading-state">Consultando microservicio de reportes...</div>
+        <div className="loading-state">Cargando informes...</div>
       ) : error ? (
         <EmptyState title="Reportes no disponibles" description={error} />
       ) : activeTab === 'usuarios' ? (
@@ -1421,7 +1340,7 @@ function ReportsView({ token, onTrace, onUnauthorized }) {
             <SummaryTile
               label="Usuarios"
               value={report.usuarios.length}
-              note="Registros reportados por el microservicio"
+              note="Registros disponibles"
             />
             <SummaryTile
               label="Activos"
@@ -1838,34 +1757,25 @@ function LoginScreen({ onLogin, onTrace, onUnauthorized }) {
   return (
     <div className="login-shell">
       <section className="login-hero">
-        <p className="eyebrow">Entrega académica</p>
-        <h1>Tienda Generica Virtual</h1>
-        <p>
-          Interfaz React desacoplada del backend, servida en contenedores propios y
-          balanceada por Nginx tanto en el frente como en la capa API.
-        </p>
-
-        <div className="hero-notes">
-          <article>
-            <strong>Frontend balanceado</strong>
-            <span>Dos instancias del panel React detrás del balanceador frontal.</span>
-          </article>
-          <article>
-            <strong>Backend balanceado</strong>
-            <span>Dos gateways Spring detrás de un Nginx dedicado al backend.</span>
-          </article>
-          <article>
-            <strong>Microservicios aislados</strong>
-            <span>Cada servicio corre en su propio contenedor Docker.</span>
-          </article>
-        </div>
+        <p className="eyebrow">Gestión comercial</p>
+        <h1>{STORE_NAME}</h1>
+        <p>Ventas, clientes y catálogo en un solo lugar.</p>
+        <WeeklySales sample />
       </section>
 
       <section className="login-card">
         <div className="login-card-glow" />
         <p className="eyebrow">Acceso seguro</p>
         <h2>Iniciar sesión</h2>
-        <p>Usa tus credenciales para entrar al panel operativo y a los reportes.</p>
+        {import.meta.env.VITE_PORTFOLIO_DEMO === 'true' ? (
+          <div>
+            <p>Explora la tienda con datos ficticios. Los cambios son visibles para quienes prueben la demo.</p>
+            <button type="button" className="button ghost"
+              onClick={() => setCredentials({ usuario: 'demo.caja', contrasena: 'MostradorDemo26!' })}>
+              Usar cuenta de prueba
+            </button>
+          </div>
+        ) : <p>Usa tus credenciales para entrar al panel operativo y a los reportes.</p>}
 
         <form className="form-grid" onSubmit={handleSubmit}>
           <label className="form-field">
@@ -1879,7 +1789,7 @@ function LoginScreen({ onLogin, onTrace, onUnauthorized }) {
                   usuario: event.target.value
                 }))
               }
-              placeholder="admininicial"
+              placeholder="Tu usuario"
             />
           </label>
 
@@ -1923,7 +1833,6 @@ export default function App() {
   const [session, setSession] = useState(() => loadStoredSession());
   const [currentView, setCurrentView] = useState('dashboard');
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
-  const [trace, setTrace] = useState({});
   const [toasts, setToasts] = useState([]);
 
   useEffect(() => {
@@ -1947,17 +1856,6 @@ export default function App() {
     window.setTimeout(() => {
       dismissToast(id);
     }, 3600);
-  }
-
-  function handleTrace(nextTrace) {
-    if (!nextTrace) {
-      return;
-    }
-
-    setTrace((current) => ({
-      ...current,
-      ...nextTrace
-    }));
   }
 
   function handleUnauthorized() {
@@ -2001,7 +1899,6 @@ export default function App() {
       <Fragment>
         <LoginScreen
           onLogin={handleLogin}
-          onTrace={handleTrace}
           onUnauthorized={handleUnauthorized}
         />
         <ToastViewport toasts={toasts} onDismiss={dismissToast} />
@@ -2019,10 +1916,10 @@ export default function App() {
 
         <aside className={`sidebar ${mobileSidebarOpen ? 'open' : ''}`}>
           <div className="sidebar-brand">
-            <div className="brand-mark">TG</div>
+            <div className="brand-mark">{getInitials(STORE_NAME)}</div>
             <div>
-              <strong>Tienda Generica</strong>
-              <small>React + Nginx + Docker</small>
+              <strong>{STORE_NAME}</strong>
+              <small>Gestión comercial</small>
             </div>
           </div>
 
@@ -2072,25 +1969,15 @@ export default function App() {
               </div>
             </div>
 
-            <div className="topbar-tags">
-              <span className="header-tag">{session.tipoToken || 'Bearer'}</span>
-              {trace.backendUpstream ? (
-                <span className="header-tag subtle">GW {trace.backendUpstream}</span>
-              ) : null}
-              {trace.upstreamService ? (
-                <span className="header-tag subtle">{trace.upstreamService}</span>
-              ) : null}
-            </div>
+            
           </header>
 
           {currentView === 'dashboard' ? (
             <DashboardView
               token={session.token}
-              onTrace={handleTrace}
               onUnauthorized={handleUnauthorized}
               onToast={showToast}
               onNavigate={navigateTo}
-              trace={trace}
             />
           ) : null}
 
@@ -2101,7 +1988,6 @@ export default function App() {
               resourceLabel="Proveedor"
               endpoint="proveedores"
               token={session.token}
-              onTrace={handleTrace}
               onUnauthorized={handleUnauthorized}
               onToast={showToast}
               idField="nit"
@@ -2182,7 +2068,6 @@ export default function App() {
               resourceLabel="Cliente"
               endpoint="clientes"
               token={session.token}
-              onTrace={handleTrace}
               onUnauthorized={handleUnauthorized}
               onToast={showToast}
               idField="cedula"
@@ -2274,7 +2159,6 @@ export default function App() {
               resourceLabel="Usuario"
               endpoint="usuarios"
               token={session.token}
-              onTrace={handleTrace}
               onUnauthorized={handleUnauthorized}
               onToast={showToast}
               idField="cedula"
@@ -2408,7 +2292,6 @@ export default function App() {
           {currentView === 'productos' ? (
             <ProductsView
               token={session.token}
-              onTrace={handleTrace}
               onUnauthorized={handleUnauthorized}
               onToast={showToast}
             />
@@ -2418,7 +2301,6 @@ export default function App() {
             <SalesView
               token={session.token}
               session={session}
-              onTrace={handleTrace}
               onUnauthorized={handleUnauthorized}
               onToast={showToast}
             />
@@ -2427,7 +2309,6 @@ export default function App() {
           {currentView === 'reportes' ? (
             <ReportsView
               token={session.token}
-              onTrace={handleTrace}
               onUnauthorized={handleUnauthorized}
             />
           ) : null}

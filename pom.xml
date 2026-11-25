@@ -32,4 +32,5 @@
         <module>microservices/report-service</module>
         <module>microservices/gateway-service</module>
     </modules>
+    <profiles><profile><id>portfolio</id><modules><module>portfolio</module></modules></profile></profiles>
 </project>

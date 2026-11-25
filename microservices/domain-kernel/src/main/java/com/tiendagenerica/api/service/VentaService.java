@@ -43,9 +43,6 @@ public class VentaService {
 
     @Transactional
     public VentaResponse crearVenta(CrearVentaRequest req) {
-        if (req.getItems().size() > 3) {
-            throw new BusinessException("Solo se permiten hasta 3 productos por venta según el requerimiento");
-        }
 
         validateUniqueProducts(req.getItems());
 
